@@ -1,5 +1,7 @@
 
+from email.policy import default
 from re import VERBOSE
+from tabnanny import verbose
 from django.db import models
 
 # Create your models here.
@@ -8,6 +10,7 @@ class Author(models.Model): #Tabla padre
       last_name = models.CharField(max_length=120, verbose_name='Apellido')
       birth_date = models.DateField(verbose_name='Fecha de nacimiento')
       created_date = models.DateTimeField(auto_now_add=True, verbose_name='Fecha creación')
+      status = models.BooleanField(default=True, verbose_name='Status')
       
       class Meta:
           db_table = 'authors'

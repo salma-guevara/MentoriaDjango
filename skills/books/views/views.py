@@ -1,3 +1,4 @@
+from functools import partial
 from django.shortcuts import get_object_or_404 #Nos regresará un error 404 *
 
 from rest_framework import status
@@ -12,7 +13,7 @@ from books.serializers import AuthorSerializer, BookSerializer
 
 # Create your views here.
 class RetrieveBooks(APIView):
-    permissions_classes = (AllowAny,)
+    permissions_classes = (AllowAny,) #La coma al final es porque estamos agregando una tupla
     
     def get(self,request):
         books_list = Book.objects.all()
@@ -24,7 +25,7 @@ class RetrieveAuthors(APIView):
     permissions_classes = (AllowAny,)
     
     def get(self,request):
-        author_list = Author.objects.all()
+        author_list = Author.objects.filter(status=True)
         serializer = AuthorSerializer(author_list, many=True) #con el último parámetro, le indicamos al serializador que hay más de un objeto en esa lista
         return Response(serializer.data) #Toma los datos y los convierte a formato json.
     
@@ -51,14 +52,29 @@ class CreateBook(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     
-class RetriveAuthorAPIView(APIView):
+class RetrieveAuthorAPIView(APIView):
     permissions_classes = (AllowAny,)
     
     def get(self,request,author_id):
-        author_obj = Author.objects.get(id=author_id) #Aquí solo nos regresará el objeto que coinicida con los parámetros que le estamos pidiendo
+        author_obj = get_object_or_404(Author,pk=author_id) #Aquí solo nos regresará el objeto que coinicida con los parámetros que le estamos pidiendo
         serializer = AuthorSerializer(author_obj) #aqui el many=True no es necesario porque solo nos va a devolver un objeto
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
+    
+    def put(self,request,author_id):
+        author_obj = get_object_or_404(Author, pk=author_id)
+        serializer = AuthorSerializer(instance=author_obj, data=request.data, partial=True) #instance es lo que tenemos en la BD. partial --> si no enviamos toda la info para que se modificque, solo toma la que viene en el request.data
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    def delete(self,request,author_id):
+        author_obj = get_object_or_404(Author, pk=author_id)
+        author_obj.status = False #Truco relacionado con models.py --> Eliminamos sin haber eliminado realmente
+        author_obj.save()
+        return Response({'message':'Eliminado'}, status=status.HTTP_204_NO_CONTENT)
+
     
 class RetriveBookAPIView(APIView):
     permissions_classes = (AllowAny,)

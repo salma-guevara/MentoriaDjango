@@ -5,8 +5,8 @@ from books.models import Author, Book  #Estamos llamando a los modelos de la ses
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        #fields = '__all__' #Va a ir al modelo Author y va a traer todos los campos que tenga específicados + el id
-        fields = ('id','first_name','last_name','birth_date') #Si solo queremos ver campos específicos. Si después estamos agregando datos y no está el campo aquí, regresará un error.
+        fields = '__all__' #Va a ir al modelo Author y va a traer todos los campos que tenga específicados + el id
+        #fields = ('id','first_name','last_name','birth_date') #Si solo queremos ver campos específicos. Si después estamos agregando datos y no está el campo aquí, regresará un error.
         
 
 class BookSerializer (serializers.ModelSerializer):
